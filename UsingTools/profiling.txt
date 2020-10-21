@@ -1,0 +1,23 @@
+$ time ./prog
+//----------------------
+$ perf stat -a ./prog
+$ sudo perf record ./prog
+$ sudo perf report 
+//-----------------------
+valgrind --tool=cachegrind ./prog
+cg_annotate <cachegrind_file>
+cg_annotate <cachegrind_file> <file.c>
+=
+cg_annotate <cachegrind_file> auto=yes
+cg_merge file1 file2 file3 ...
+cg_diff file1 file2
+
+valgrind --tool=callgrind ./prog
+callgrind_annotate <callgrind_file>
+callgrind_control -e -b  // while running the programm
+
+valgrind ./a.out // memcheck
+//----------------------------------
+gcc -g -pg -o test prog.c
+./prog.c
+gprof ./a.out gmon.out > prof.txt
