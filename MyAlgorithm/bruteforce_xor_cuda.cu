@@ -31,7 +31,7 @@ static uint32_t flp2(uint32_t x)
 static cudaError_t bruteforce(uint8_t* buf, uint32_t* stats, int num_threads, int num_chunks);
 
 __global__ void bruteforce_kernel(uint8_t* buf, uint32_t* g_stats, int num_chunks) {
-    uint32_t local_stats[BYTE_LIM] = { 0 };
+    uint32_t local_stats[BYTE_LIM] = { 0 }; // or use __shared__ local_stats[BYTE_LIM*MAX_THREADS_NUM=256]
     constexpr int32_t lower_lim = 0x20; // ascii space
     constexpr int32_t upper_lim = 0x7e; // ascii ~
     int curr_chunk = blockIdx.x;
@@ -210,20 +210,24 @@ Error:
 
 static int parse_args(int argc, char** argv) {
     if (argc < 3) {
-        puts("Provide the filename and key size (either 128 or 256 bytes)!");
+        puts("Provide the filename and key size (either 32, 64, 128 or 256 bytes)!");
         return -1;
     }
     int num_t;
     const char* k128 = "128";
     const char* k256 = "256";
+    const char* k64 = "64";
+    const char* k32 = "32";
     if (memcmp(&argv[2], k128, 3)) {
         num_t = 128;
-    }
-    else if (memcmp(&argv[2], k256, 3)) {
+    } else if (memcmp(&argv[2], k256, 3)) {
         num_t = 256;
-    }
-    else {
-        puts("Key size must be either 128 or 256 bytes!");
+    } else if (memcmp(&argv[2], k64, 2)) {
+        num_t = 64;
+    } else if (memcmp(&argv[2], k32, 2)) {
+        num_t = 32;
+    } else {
+        puts("Key size must be either 32, 64, 128 or 256 bytes!");
         num_t = -1;
     }
     return num_t;
